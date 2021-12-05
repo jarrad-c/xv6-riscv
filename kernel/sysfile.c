@@ -16,6 +16,8 @@
 #include "file.h"
 #include "fcntl.h"
 
+static int readcount = 0;
+
 // Fetch the nth word-sized system call argument as a file descriptor
 // and return both the descriptor and the corresponding struct file.
 static int
@@ -73,9 +75,17 @@ sys_read(void)
   int n;
   uint64 p;
 
+  extern int readcount;
+  ++readcount;
+
   if(argfd(0, 0, &f) < 0 || argint(2, &n) < 0 || argaddr(1, &p) < 0)
     return -1;
   return fileread(f, p, n);
+}
+
+uint64 sys_getreadcount(void) {
+  extern int readcount;
+  return readcount;
 }
 
 uint64
